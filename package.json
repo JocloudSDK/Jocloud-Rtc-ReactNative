@@ -1,0 +1,28 @@
+{
+  "name": "react-native-jocloud-rtc",
+  "title": "React Native Jocloud Rtc",
+  "version": "3.0.27",
+  "description": "Thunderbolt SDK接口封装",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://git.yy.com/apps/RtcSdk-Tech/Jocloud-Rtc-ReactNative",
+    "baseUrl": "https://git.yy.com/apps/RtcSdk-Tech/Jocloud-Rtc-ReactNative"
+  },
+  "keywords": [
+    "react-native",
+    "rtc"
+  ],
+  "license": "MIT",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md",
+  "peerDependencies": {
+    "react": "^16.11.0",
+    "react-native": ">=0.62.2 <1.0.x"
+  },
+  "devDependencies": {
+    "react": "16.11.0",
+    "react-native": "0.62.2"
+  }
+}

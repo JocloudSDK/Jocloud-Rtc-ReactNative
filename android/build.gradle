@@ -1,0 +1,130 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:3.5.3")
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+apply plugin: "com.android.library"
+
+def getExtOrDefault(name) {
+    return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['ReactNativeJocloudRtc_' + name]
+}
+
+def getExtOrIntegerDefault(name) {
+    return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['ReactNativeJocloudRtc_' + name]).toInteger()
+}
+
+android {
+    compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
+    buildToolsVersion getExtOrDefault('buildToolsVersion')
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
+        versionCode 1
+        versionName "1.0.0"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            consumerProguardFile("proguard-rules.pro")
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven { url "http://repo.yypm.com:8181/nexus/content/groups/public" }
+    maven {
+        // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+        url("$rootDir/../node_modules/react-native/android")
+    }
+    maven {
+        // Android JSC is installed from npm
+        url("$rootDir/../node_modules/jsc-android/dist")
+    }
+
+    google()
+    jcenter()
+    maven { url 'https://www.jitpack.io' }
+
+    def found = false
+    def defaultDir = null
+    def androidSourcesName = 'React Native sources'
+
+    if (rootProject.ext.has('reactNativeAndroidRoot')) {
+        defaultDir = rootProject.ext.get('reactNativeAndroidRoot')
+    } else {
+        defaultDir = new File(
+                projectDir,
+                '/../../../node_modules/react-native/android'
+        )
+    }
+
+    if (defaultDir.exists()) {
+        maven {
+            url defaultDir.toString()
+            name androidSourcesName
+        }
+
+        logger.info(":${project.name}:reactNativeAndroidRoot ${defaultDir.canonicalPath}")
+        found = true
+    } else {
+        def parentDir = rootProject.projectDir
+
+        1.upto(5, {
+            if (found) return true
+            parentDir = parentDir.parentFile
+
+            def androidSourcesDir = new File(parentDir, 'node_modules/react-native'
+            )
+
+            def androidPrebuiltBinaryDir = new File(parentDir, 'node_modules/react-native/android'
+            )
+
+            if (androidPrebuiltBinaryDir.exists()) {
+                maven {
+                    url androidPrebuiltBinaryDir.toString()
+                    name androidSourcesName
+                }
+
+                logger.info(":${project.name}:reactNativeAndroidRoot ${androidPrebuiltBinaryDir.canonicalPath}")
+                found = true
+            } else if (androidSourcesDir.exists()) {
+                maven {
+                    url androidSourcesDir.toString()
+                    name androidSourcesName
+                }
+
+                logger.info(":${project.name}:reactNativeAndroidRoot ${androidSourcesDir.canonicalPath}")
+                found = true
+            }
+        })
+    }
+
+    if (!found) {
+        throw new GradleException(
+                "${project.name}: unable to locate React Native android sources. " +
+                        "Ensure you have you installed React Native as a dependency in your project and try again."
+        )
+    }
+}
+
+dependencies {
+    implementation 'com.facebook.react:react-native:+'  // From node_modules
+    implementation "com.rtc.thunder:thunderbolt:${thunder_version}"
+}
